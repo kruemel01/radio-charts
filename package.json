@@ -1,0 +1,21 @@
+{
+  "name": "radio-charts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "cheerio": "^0.22.0",
+    "he": "^1.1.0",
+    "moment": "^2.17.1",
+    "mysql": "^2.12.0",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
+    "sequelize": "^3.28.0"
+  }
+}
