@@ -64,11 +64,11 @@ let Artist = db.define("Artist", {
     ],
 });
 
-PlaylistItem.belongsTo(Song, { foreignKey: "song_id" });
-Song.hasMany(PlaylistItem, { foreignKey: "song_id" });
+PlaylistItem.belongsTo(Song, { foreignKey: "songId" });
+Song.hasMany(PlaylistItem, { foreignKey: "songId" });
 
-Song.belongsTo(Artist, { foreignKey: "artist_id" });
-Artist.hasMany(Song, { foreignKey: "artist_id" });
+Song.belongsTo(Artist, { foreignKey: "artistId" });
+Artist.hasMany(Song, { foreignKey: "artistId" });
 
 
 module.exports = { db, PlaylistItem, Song, Artist };

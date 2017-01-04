@@ -6,7 +6,7 @@ const { db } = require("./db.js");
 
 const initialUrl = "http://www.swr3.de/musik/playlisten";
 
-let day = "2017-01-03";
+let day = process.argv[2] || "2017-01-03";
 
 Promise.all([
     request(initialUrl),

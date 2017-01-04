@@ -4,8 +4,6 @@ const he = require("he");
 const moment = require("moment");
 const Promise = require("bluebird");
 const { PlaylistItem, Song, Artist } = require("./db.js");
-const Sequelize = require("sequelize");
-
 
 module.exports = function scrape(i, { url, day, hour }, index) {
     console.log(`Item ${index}: ${url}?hour=${hour}&date=${day}`);
@@ -13,7 +11,7 @@ module.exports = function scrape(i, { url, day, hour }, index) {
     .then(html => {
         let $ = cheerio.load(html);
 
-        let playlistItems = []
+        let playlistItems = [];
 
         $("#playlist").children().each((i, el) => {
             let timestamp = $(el).find("time.timestamp").attr("datetime");
@@ -26,19 +24,33 @@ module.exports = function scrape(i, { url, day, hour }, index) {
                 name = he.decode(name);
                 artist = he.decode(artist);
                 let time = moment(timestamp, "YYYY-MM-DD H:mm").toDate();
-                console.log(time);
                 playlistItems.push({ name, artist, time });
             }
         });
+
+        console.log(`Website fetched. Inserting ${playlistItems.length} records into the database.`);
         return Promise.reduce(playlistItems,
         (count, { name, artist, time }) => {
-            PlaylistItem.find({
-                where: {
-                    time
-                },
-                rejectOnEmpty: true,
-            })
-            .then(() => {
+            return Promise.all([
+                PlaylistItem.find({
+                    where: {
+                        time,
+                    },
+                }),
+                Song.find({
+                    where: {
+                        name,
+                    },
+                }),
+            ])
+            .then(([playlistItem, song]) => {
+                if (playlistItem && song
+                && playlistItem.songId === song.id) {
+                    console.log(song.name + " " + song.id);
+                    console.log(playlistItem.time);
+                    console.log(count);
+                    throw new Error("Record already in database");
+                }
                 let playRecord = PlaylistItem.create({
                     time
                 });
@@ -69,12 +81,9 @@ module.exports = function scrape(i, { url, day, hour }, index) {
             .then(() => {
                 return count + 1;
             })
-            .catch(Sequelize.EmptyResultError, err => {
-                console.log("Record already in database");
-                console.log(err);
-            })
             .catch(err => {
-                console.log(err);
+                console.log(err.message);
+                return count;
             });
         }, i);
     });
