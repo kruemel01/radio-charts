@@ -4,6 +4,7 @@ const he = require("he");
 const moment = require("moment");
 const Promise = require("bluebird");
 const { PlaylistItem, Song, Artist } = require("./db.js");
+const Sequelize = require("sequelize");
 
 
 module.exports = function scrape(i, { url, day, hour }, index) {
@@ -31,26 +32,34 @@ module.exports = function scrape(i, { url, day, hour }, index) {
         });
         return Promise.reduce(playlistItems,
         (count, { name, artist, time }) => {
-            let playRecord = PlaylistItem.create({
-                time
-            });
-            let songRecord = Song.findOrCreate({
+            PlaylistItem.find({
                 where: {
-                    name
+                    time
                 },
-                defaults: {
-                    name,
-                },
-            });
-            let artistRecord = Artist.findOrCreate({
-                where: {
-                    name: artist,
-                },
-                defaults: {
-                    name: artist,
-                },
-            });
-            return Promise.all([playRecord, songRecord, artistRecord])
+                rejectOnEmpty: true,
+            })
+            .then(() => {
+                let playRecord = PlaylistItem.create({
+                    time
+                });
+                let songRecord = Song.findOrCreate({
+                    where: {
+                        name
+                    },
+                    defaults: {
+                        name,
+                    },
+                });
+                let artistRecord = Artist.findOrCreate({
+                    where: {
+                        name: artist,
+                    },
+                    defaults: {
+                        name: artist,
+                    },
+                });
+                return Promise.all([playRecord, songRecord, artistRecord])
+            })            
             .then(([playRecord, songRecord, artistRecord]) => {
                 return Promise.all([
                     playRecord.setSong(songRecord[0]),
@@ -59,6 +68,13 @@ module.exports = function scrape(i, { url, day, hour }, index) {
             })
             .then(() => {
                 return count + 1;
+            })
+            .catch(Sequelize.EmptyResultError, err => {
+                console.log("Record already in database");
+                console.log(err);
+            })
+            .catch(err => {
+                console.log(err);
             });
         }, i);
     });
