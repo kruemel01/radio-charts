@@ -10,7 +10,7 @@ let day = "2017-01-03";
 
 Promise.all([
     request(initialUrl),
-    db.sync({ force:true }),
+    db.sync(),
 ])
 .then(([html, ]) => {
     let $ = cheerio.load(html);
