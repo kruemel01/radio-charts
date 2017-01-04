@@ -1,0 +1,4 @@
+[submodule "radio-charts-client"]
+	path = radio-charts-client
+	url = git@github.com:kruemel01/radio-charts-client
+	branch = master
