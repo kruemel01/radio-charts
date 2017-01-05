@@ -3,10 +3,14 @@ const cheerio = require("cheerio");
 const he = require("he");
 const moment = require("moment");
 const Promise = require("bluebird");
+const Spinner = require("cli-spinner");
 const { PlaylistItem, Song, Artist } = require("./db.js");
 
 module.exports = function scrape(i, { url, day, hour }, index) {
-    console.log(`Item ${index}: ${url}?hour=${hour}&date=${day}`);
+    let spinner = new Spinner(`Requesting ${index}: ${url}?hour=${hour}&date=${day} %s`);
+    spinner.setSpinnerString(1);
+    spinner.start();
+
     return request(`${url}?hour=${hour}&date=${day}`)
     .then(html => {
         let $ = cheerio.load(html);
@@ -28,6 +32,7 @@ module.exports = function scrape(i, { url, day, hour }, index) {
             }
         });
 
+        spinner.stop();
         console.log(`Website fetched. Inserting ${playlistItems.length} records into the database.`);
         return Promise.reduce(playlistItems,
         (count, { name, artist, time }) => {
