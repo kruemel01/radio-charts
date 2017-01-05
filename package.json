@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon --harmony-async-await app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cli": "node --harmony-async-await cli.js"
   },
   "author": "",
   "license": "ISC",
