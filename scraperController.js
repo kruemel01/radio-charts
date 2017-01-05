@@ -2,17 +2,19 @@ const Promise = require("bluebird");
 const request = require("request-promise");
 const cheerio = require("cheerio");
 const scraper = require("./scraper.js");
-const { db } = require("./db.js");
+
+const { InvalidArgumentError } = require("./errors.js");
 
 const initialUrl = "http://www.swr3.de/musik/playlisten";
 
-let day = process.argv[2] || "2017-01-03";
+module.exports = async function(date) {
+    if (!date || !date.isValid) {
+        throw new InvalidArgumentError();
+    }
 
-Promise.all([
-    request(initialUrl),
-    db.sync(),
-])
-.then(([html, ]) => {
+    let day = date.format("YYYY-MM-DD");
+    console.log(day);
+    let html = await request(initialUrl);
     let $ = cheerio.load(html);
     let url = $("form[action^='http://www.swr3.de/musik/playlisten/']").attr("action");
     let paramArray = [];
@@ -23,8 +25,8 @@ Promise.all([
             hour: i,
         });
     }
-    return Promise.reduce(paramArray, scraper, 0);
-})
-.then((i) => {
-    console.log(`Done. Inserted ${i} records into the database`);
-});
+    
+    let records = await Promise.reduce(paramArray, scraper, 0);
+    console.log(`Done. Inserted ${records} records into the database`);
+};
+
