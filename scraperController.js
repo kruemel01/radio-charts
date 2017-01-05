@@ -28,5 +28,6 @@ module.exports = async function(date) {
     
     let records = await Promise.reduce(paramArray, scraper, 0);
     console.log(`Done. Inserted ${records} records into the database`);
+    return records;
 };
 
