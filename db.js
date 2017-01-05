@@ -1,8 +1,9 @@
 const Sequelize = require("sequelize");
 
-let db = new Sequelize("radiocharts", "root", "root", {
+let db = new Sequelize("radiocharts", "radiocharts", "radiocharts", {
     host: "localhost",
-    dialect: "mariadb",
+    port: 5432,
+    dialect: "postgres",
     pool: {
         max: 5,
         min: 0,
