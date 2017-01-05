@@ -8,8 +8,8 @@ async function init() {
     console.log("Starting application...");
     await db.sync();
     console.log("Database sync complete.");
-    console.log("Listening on 3000");
-    app.listen(3000);
+    console.log("Listening on 8080");
+    app.listen(8080);
 }
 
 const app = new Koa();
